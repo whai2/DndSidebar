@@ -1,27 +1,32 @@
-//import DocumentList from "./DocumentList"
+'use client'
 
-const getSideBarData = async () => {
-  try {
-    const res = await fetch('http://localhost:3000/api/sidebar/', {
-      cache: "no-store",
-    })
+import { addNodeInSidebarTree } from "@/lib/actions"
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch topics");
-    }
+import DocumentList from "./DocumentList"
 
-    return res.json();
-  } catch (error) {
-    console.log("Error loading topics: ", error);
-  }
+const PAGE_PATH = '/';
+const ROOT_NODE = "root";
+
+interface SidebarDocument {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  parent_id?: string; 
 }
 
-const SideBar = async () => {
-  const data  = await getSideBarData();
+interface DocumentListProps {
+  data: SidebarDocument[]; // SidebarDocument 객체의 배열로, 선택적 속성입니다.
+}
+
+const SideBar = ({data}: DocumentListProps) => {
 
   return (
     <div>
-      hi
+      <form action={()=>{addNodeInSidebarTree(PAGE_PATH)}}>
+        <button type="submit">루트 +</button>
+      </form>
+      <DocumentList sidebarData={data}/>
     </div>
   )
 }

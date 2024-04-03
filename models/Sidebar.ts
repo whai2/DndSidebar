@@ -1,14 +1,14 @@
 import { model, models, Schema } from 'mongoose';
 
 export interface IProduct {
-    id: string;
     parent_id: string;
+    index: number;
 }
 
 const SidebarSchema = new Schema<IProduct>(
   {
-    id: String,
     parent_id: String,
+    index: Number,
   },
   {
     timestamps: true,

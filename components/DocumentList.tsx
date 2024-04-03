@@ -1,59 +1,54 @@
-// 'use client'
+'use client'
 
-// import { useState, useRef } from "react";
-// import { useDrag, useDrop } from 'react-dnd'
+import { useState } from "react";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-// interface DocumentListProps {
-//   level?: number;
-// }
+interface SidebarDocument {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  parent_id?: string; 
+}
 
-// const DocumentList = ({level=0, text, index, moveListItem }: DocumentListProps) => {
-//   const [children, setChildren] = useState<number[]>([]);
+interface DocumentListProps {
+  sidebarData: SidebarDocument[]; // SidebarDocument 객체의 배열로, 선택적 속성입니다.
+}
 
-//   const [{ isDragging }, dragRef] = useDrag({
-//     type: 'item',
-//     item: { index },
-//     collect: (monitor) => ({
-//         isDragging: monitor.isDragging(),
-//     }),
-// })
+const DocumentList = ({ sidebarData }: DocumentListProps) => {
+  const [treeChildren, setTreeChildren] = useState(sidebarData);
 
-//   const [spec, dropRef] = useDrop({
-//     accept: 'item',
-//     hover: (item, monitor) => {
-//         const dragIndex = item.index
-//         const hoverIndex = index
-//         const hoverBoundingRect = ref.current?.getBoundingClientRect()
-//         const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
-//         const hoverActualY = monitor.getClientOffset().y - hoverBoundingRect.top
+  const handleOnDragEnd = async (result: any) => {
+    if (!result.destination) return;
 
-//         // if dragging down, continue only when hover is smaller than middle Y
-//         if (dragIndex < hoverIndex && hoverActualY < hoverMiddleY) return
-//         // if dragging up, continue only when hover is bigger than middle Y
-//         if (dragIndex > hoverIndex && hoverActualY > hoverMiddleY) return
+    const items = Array.from(treeChildren);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
 
-//         moveListItem(dragIndex, hoverIndex)
-//         item.index = hoverIndex
-//     },
-//   })
+    setTreeChildren(items);
+  } 
 
-//   const ref = useRef(null)
-//     const dragDropRef = dragRef(dropRef(ref))
+  return (
+    <DragDropContext onDragEnd={handleOnDragEnd}>
+      <Droppable droppableId="characters">
+      {(provided) => (
+        <ul className="characters" {...provided.droppableProps} ref={provided.innerRef}>
+          {treeChildren.map(({_id, parent_id}, index) => {
+            return (
+              <Draggable key={_id} draggableId={_id} index={index}>
+                {(provided) => (
+                  <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                    <div className="characters-thumb">{_id}</div>
+                  </li>
+                )}
+              </Draggable>
+            );
+          })}
+        </ul>
+      )}
+      </Droppable>
+    </DragDropContext>
+  )
+}
 
-//   const addChild = () => {
-//     const currentChildren = (children.at(-1) ?? 0) + 1;
-//     setChildren((newChildren) => [...newChildren, currentChildren]);
-//   }
-
-//   return (
-//     <div style={{paddingLeft: level ? `${(level * 12) + 25}px` : undefined}} ref={dragDropRef}>
-//       {text}
-//       <button onClick={addChild}>+</button>
-//       {children.map((child) => (
-//         <DocumentList key={child} level={level+1} />
-//       ))}
-//     </div>
-//   )
-// }
-
-// export default DocumentList
+export default DocumentList

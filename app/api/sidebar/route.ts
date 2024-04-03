@@ -12,6 +12,7 @@ export async function GET() {
 export async function POST(request: Request) {
   await dbConnect();
 
-  await Sidebar.create(request);
-  return NextResponse.json({ message: "Topic deleted" }, { status: 201 });
+  const { parent_id } = await request.json();
+  await Sidebar.create({ parent_id });
+  return NextResponse.json({ message: "페이지가 생성되었습니다." }, { status: 201 });
 }
