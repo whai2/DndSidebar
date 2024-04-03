@@ -1,7 +1,13 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+import { sortSiblingNodes } from "@/lib/actions";
+import { useResetServerContext } from "@/hooks/useResetServerContext";
+
+const PAGE_PATH = '/';
 
 interface SidebarDocument {
   _id: string;
@@ -9,6 +15,7 @@ interface SidebarDocument {
   updatedAt: string;
   __v: number;
   parent_id?: string; 
+  index?: number;
 }
 
 interface DocumentListProps {
@@ -18,7 +25,7 @@ interface DocumentListProps {
 const DocumentList = ({ sidebarData }: DocumentListProps) => {
   const [treeChildren, setTreeChildren] = useState(sidebarData);
 
-  const handleOnDragEnd = async (result: any) => {
+  const handleOnDragEnd = useCallback(async (result: any) => {
     if (!result.destination) return;
 
     const items = Array.from(treeChildren);
@@ -26,19 +33,25 @@ const DocumentList = ({ sidebarData }: DocumentListProps) => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setTreeChildren(items);
-  } 
+    console.log(items);
+
+    //server actions
+    await sortSiblingNodes(PAGE_PATH, items);
+  }, []);
+
+  useResetServerContext(); // reset for beautiful dnd.
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
       <Droppable droppableId="characters">
       {(provided) => (
         <ul className="characters" {...provided.droppableProps} ref={provided.innerRef}>
-          {treeChildren.map(({_id, parent_id}, index) => {
+          {treeChildren.map(({_id, parent_id, index: siblingIndex}, index) => {
             return (
               <Draggable key={_id} draggableId={_id} index={index}>
                 {(provided) => (
                   <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                    <div className="characters-thumb">{_id}</div>
+                    <div className="characters-thumb">{siblingIndex}{_id}</div>
                   </li>
                 )}
               </Draggable>
