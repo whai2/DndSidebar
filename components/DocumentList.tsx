@@ -2,10 +2,10 @@
 
 import { useState, useCallback } from "react";
 
+import { resetServerContext } from "react-beautiful-dnd";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { sortSiblingNodes } from "@/lib/actions";
-import { useResetServerContext } from "@/hooks/useResetServerContext";
 
 const PAGE_PATH = '/';
 
@@ -36,10 +36,11 @@ const DocumentList = ({ sidebarData }: DocumentListProps) => {
     console.log(items);
 
     //server actions
+    resetServerContext();
     await sortSiblingNodes(PAGE_PATH, items);
   }, []);
 
-  useResetServerContext(); // reset for beautiful dnd.
+  //useResetServerContext(); // reset for beautiful dnd.
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>

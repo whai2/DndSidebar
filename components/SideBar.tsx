@@ -20,7 +20,6 @@ interface DocumentListProps {
 }
 
 const SideBar = ({data}: DocumentListProps) => {
-
   return (
     <div>
       <form action={()=>{addNodeInSidebarTree(PAGE_PATH)}}>
