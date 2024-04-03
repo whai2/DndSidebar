@@ -1,12 +1,8 @@
 'use client'
 
-import { useState, useCallback } from "react";
-
-import { resetServerContext } from "react-beautiful-dnd";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-import { sortSiblingNodes } from "@/lib/actions";
-
+import { useHandleSiblingByDrag } from '@/hooks/domain/useHandleTree';
 const PAGE_PATH = '/';
 
 interface SidebarDocument {
@@ -14,40 +10,23 @@ interface SidebarDocument {
   createdAt: string;
   updatedAt: string;
   __v: number;
-  parent_id?: string; 
   index?: number;
 }
 
 interface DocumentListProps {
-  sidebarData: SidebarDocument[]; // SidebarDocument 객체의 배열로, 선택적 속성입니다.
+  sidebarData: SidebarDocument[];
+  parent_id?: string; 
 }
 
-const DocumentList = ({ sidebarData }: DocumentListProps) => {
-  const [treeChildren, setTreeChildren] = useState(sidebarData);
-
-  const handleOnDragEnd = useCallback(async (result: any) => {
-    if (!result.destination) return;
-
-    const items = Array.from(treeChildren);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setTreeChildren(items);
-    console.log(items);
-
-    //server actions
-    resetServerContext();
-    await sortSiblingNodes(PAGE_PATH, items);
-  }, []);
-
-  //useResetServerContext(); // reset for beautiful dnd.
+const DocumentList = ({ sidebarData, parent_id }: DocumentListProps) => {
+  const { siblings, handleOnDragEnd } = useHandleSiblingByDrag(sidebarData);
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
       <Droppable droppableId="characters">
       {(provided) => (
         <ul className="characters" {...provided.droppableProps} ref={provided.innerRef}>
-          {treeChildren.map(({_id, parent_id, index: siblingIndex}, index) => {
+          {siblings.map(({_id, index: siblingIndex}, index) => {
             return (
               <Draggable key={_id} draggableId={_id} index={index}>
                 {(provided) => (
