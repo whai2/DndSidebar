@@ -1,31 +1,39 @@
 'use client'
 
-import { addNodeInSidebarTree } from "@/lib/actions"
+import { useSWRSidebarTree } from "@/hooks/swr";
+import { addNodeInSidebarTree, deleteAll } from "@/lib/actions"
 
 import DocumentList from "./DocumentList"
 
 const PAGE_PATH = '/';
 const ROOT_NODE = "root";
+const LOCAL_API_URL = 'http://localhost:3000/api/sidebar/';
 
-interface SidebarDocument {
-  _id: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  parent_id?: string; 
-}
+const SideBar = () => {
+  const { data, isValidating, mutate } = useSWRSidebarTree();
 
-interface DocumentListProps {
-  data: SidebarDocument[]; // SidebarDocument 객체의 배열로, 선택적 속성입니다.
-}
+  const handleMutate = () => {
+    mutate(LOCAL_API_URL);
+  }
 
-const SideBar = ({data}: DocumentListProps) => {
+  if (isValidating) {
+    return (
+      <div>
+        <form action={()=>{addNodeInSidebarTree(PAGE_PATH)}}>
+          <button type="submit" onClick={handleMutate}>루트 +</button>
+        </form>
+      </div>
+    )
+  }
+
+  const { sidebarData } = data;
+
   return (
     <div>
       <form action={()=>{addNodeInSidebarTree(PAGE_PATH)}}>
-        <button type="submit">루트 +</button>
+        <button type="submit" onClick={handleMutate}>루트 +</button>
       </form>
-      <DocumentList sidebarData={data}/>
+      <DocumentList sidebarData={sidebarData}/>
     </div>
   )
 }

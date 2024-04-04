@@ -17,10 +17,10 @@ interface SidebarDocument {
 
 type SidebarDataType = SidebarDocument[];
 
-export function useHandleSiblingByDrag(sidebarData: SidebarDataType) {
+export function useHandleSiblingByDrag(sidebarData: SidebarDataType, mutate: any) {
   const [siblings, setSiblings] = useState(sidebarData);
 
-  const handleOnDragEnd = useCallback(async (result: any) => {
+  const handleOnDragEnd = async (result: any) => {
     if (!result.destination) return;
 
     const items = Array.from(siblings);
@@ -31,8 +31,13 @@ export function useHandleSiblingByDrag(sidebarData: SidebarDataType) {
 
     //server actions
     resetServerContext();
-    await sortSiblingNodes(PAGE_PATH, items);
-  }, []);
+    try {
+      await sortSiblingNodes(PAGE_PATH, items);
+      mutate(PAGE_PATH);
+     } catch (error) {
+      console.log("Error loading topics: ", error);
+    }
+  };
 
   return { siblings, handleOnDragEnd };
 }

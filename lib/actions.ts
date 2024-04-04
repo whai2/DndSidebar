@@ -20,9 +20,9 @@ export async function addNodeInSidebarTree(path: string, parentId?: string) {
   }  
 }
 
-export async function getSidebarTree() {
+export async function getSidebarTree(url: string) {
   try {
-    const res = await fetch(LOCAL_API_URL)
+    const res = await fetch(url)
 
     if (!res.ok) {
       throw new Error("Failed to fetch topics");
@@ -51,4 +51,15 @@ export async function sortSiblingNodes(path: string, newSidebarData: any) {
   } catch (error) {
     console.log("Error loading topics: ", error);
   }
+}
+
+export async function deleteAll() {
+  try {
+    await fetch(LOCAL_API_URL, {
+      method: 'DELETE'
+    })
+
+  } catch (error) {
+    console.log("Error loading topics: ", error);
+  }  
 }

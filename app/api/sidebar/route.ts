@@ -24,3 +24,10 @@ export async function PATCH(request: Request) {
   await Sidebar.updateOne({ _id }, { index: index });
   return NextResponse.json({ message: "페이지 정렬 완료." }, { status: 201 });
 }
+
+export async function DELETE() {
+  await dbConnect();
+
+  await Sidebar.deleteMany({});
+  return NextResponse.json({ message: "모두 제거" }, { status: 204 });
+}

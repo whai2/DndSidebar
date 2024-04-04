@@ -3,6 +3,10 @@
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { useHandleSiblingByDrag } from '@/hooks/domain/useHandleTree';
+import { useSWRSidebarTree } from '@/hooks/swr';
+
+import { addNodeInSidebarTree } from "@/lib/actions"
+
 const PAGE_PATH = '/';
 
 interface SidebarDocument {
@@ -19,7 +23,8 @@ interface DocumentListProps {
 }
 
 const DocumentList = ({ sidebarData, parent_id }: DocumentListProps) => {
-  const { siblings, handleOnDragEnd } = useHandleSiblingByDrag(sidebarData);
+  const { mutate } = useSWRSidebarTree();
+  const { siblings, handleOnDragEnd } = useHandleSiblingByDrag(sidebarData, mutate);
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -31,7 +36,10 @@ const DocumentList = ({ sidebarData, parent_id }: DocumentListProps) => {
               <Draggable key={_id} draggableId={_id} index={index}>
                 {(provided) => (
                   <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                    <div className="characters-thumb">{siblingIndex}{_id}</div>
+                    <span>{_id}</span>
+                    <form action={()=>{addNodeInSidebarTree(PAGE_PATH, _id)}}>
+                      <button type="submit">{siblingIndex}+</button>
+                    </form>
                   </li>
                 )}
               </Draggable>
