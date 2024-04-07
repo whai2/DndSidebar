@@ -41,3 +41,7 @@ export function useHandleSiblingByDrag(sidebarData: SidebarDataType, mutate: any
 
   return { siblings, handleOnDragEnd };
 }
+
+function handleSiblingNodes() {
+  
+}

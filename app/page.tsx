@@ -1,13 +1,13 @@
-import { SWRProvider } from './swr-provider'
-
 import SideBar from "@/components/SideBar"
+import Tree from "@/components/tree/ArboristTree";
 
 export default function Home() {
   return (
-    <SWRProvider>
-      <div className="overflow-y-auto flex flex-col w-60 h-full relative bg-[#f5f5dc]">
+    <>
+      <div className="overflow-y-auto flex flex-col w-61 h-full relative bg-[#f5f5dc]">
         <SideBar />
       </div>
-    </SWRProvider>
+      <Tree/>
+    </>
   );
 }

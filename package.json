@@ -14,6 +14,7 @@
     "mongoose": "^8.2.3",
     "next": "14.1.4",
     "react": "^18",
+    "react-arborist": "^3.4.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18",
     "swr": "^2.2.5"

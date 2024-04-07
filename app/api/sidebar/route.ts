@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   await dbConnect();
 
-  const sidebarData = await Sidebar.find({ "parent_id": { "$exists": false } }).sort({"index": 1});
+  const sidebarData = await Sidebar.find();
   return NextResponse.json({ sidebarData });
 }
 
