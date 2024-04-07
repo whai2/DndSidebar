@@ -62,6 +62,8 @@ export async function deleteAll() {
 }
 
 export async function makeTree(treeData: any) {
+  if (!treeData) return; 
+
   const newTreeData = treeData.slice(0);
   const treeArray: any = [];
 
@@ -70,6 +72,8 @@ export async function makeTree(treeData: any) {
   for (let i = 0; i < treeArray.length; i++) {
     dfsForChildNodes(treeArray[i], newTreeData, 0);
   }
+
+  return treeArray;
 }
 
 function makeRootNodes(newTreeData: any, treeArray: any) {
@@ -79,8 +83,9 @@ function makeRootNodes(newTreeData: any, treeArray: any) {
 
     const { _id, parent_id } = newTreeData[i];
     if (!parent_id) {
-      treeNode["id"] = i;
-      treeNode["key"] = _id;
+      treeNode["id"] = (i+1).toString();
+      treeNode["name"] = _id;
+      treeNode["children"] = [];
       treeArray.push(treeNode);
 
       const deletedData = newTreeData.splice(i, 1);
@@ -97,10 +102,10 @@ function dfsForChildNodes(
   depth: number
 ) {
   for (let i = nodeList.length - 1; i >= 0; i--) {
-    if (nodeList[i].parent_id === parentNode.key) {
-      parentNode["children"] = parentNode["children"] ? parentNode["children"] : [];
-      parentNode["children"].push({id: i, key: nodeList[i]._id})
-      
+    if (nodeList[i].parent_id === parentNode.name) {
+      parentNode["children"].push({id: `${i + 1}-${nodeList[i].parent_id}`, name: nodeList[i]._id, children: []})
+      nodeList.splice(i, 1);
+
       dfsForChildNodes(parentNode["children"][0], nodeList, depth+1);
     }
   }

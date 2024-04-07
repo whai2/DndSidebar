@@ -1,16 +1,18 @@
-'use client'
+"use client";
 
 import { useEffect } from "react";
-import { Tree, useSimpleTree } from "react-arborist";
+import { Tree } from "react-arborist";
 
-import { data } from "./data";
+import { useSimpleTree } from "@/hooks/domain/useHandleTree";
+import { useSWRSidebarTree } from "@/hooks/swr";
 
 const ArboristTree = () => {
-  const [treeData, controller] = useSimpleTree(data);
+  const { data, isValidating, mutate } = useSWRSidebarTree();
+  const [treeData, setData ,controller] = useSimpleTree(data ?? []);
 
   useEffect(() => {
-    console.log(treeData);
-  }, [treeData]);
+    setData(data ?? []);
+  }, [data]);
 
   return (
     <Tree
@@ -26,7 +28,7 @@ const ArboristTree = () => {
       padding={25 /* sets both */}
       {...controller}
     />
-  )
-}
+  );
+};
 
-export default ArboristTree
+export default ArboristTree;
