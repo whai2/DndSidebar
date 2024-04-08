@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CreateHandler,
   DeleteHandler,
@@ -6,6 +6,10 @@ import {
   RenameHandler,
   SimpleTree,
 } from "react-arborist";
+
+import { patchNewNodes } from "@/lib/actions";
+
+const LOCAL_API_URL = 'http://localhost:3000/api/sidebar/';
 
 export type SimpleTreeData = {
   id: string;
@@ -56,4 +60,14 @@ export function useSimpleTree<T>(initialData: readonly T[]) {
   const controller = { onMove, onRename, onCreate, onDelete };
 
   return [data, setData ,controller] as const;
+}
+
+export function useAsynchronousSerialize(treeData: readonly never[]) {
+  useEffect(() => {
+    const serializer = async () => {
+      await patchNewNodes(treeData);
+    }
+  
+    serializer();
+  }, [treeData]);
 }

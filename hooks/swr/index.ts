@@ -12,13 +12,13 @@ export function useSWRSidebarTree() {
     LOCAL_API_URL,
     getSidebarTree
   );
-  const [treeData, setTreeData] = useState();
+  const [ unSerializedData, setUnSerializedData] = useState([]);
   
   useEffect(() => {
     makeTree(data?.sidebarData).then((res) =>
-      setTreeData(res?.sort((a, b) => a.id - b.id))
+    setUnSerializedData(res?.sort((a, b) => a.id - b.id))
     );
   }, [data]);
 
-  return { data: treeData, error, isValidating, mutate };
+  return { data, unSerializedData, error, isValidating, mutate };
 }

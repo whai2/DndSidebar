@@ -26,26 +26,35 @@ export async function getSidebarTree(url: string) {
       throw new Error("Failed to fetch topics");
     }
 
+    revalidatePath("/"); // path: 불어오는 페이지 경로 (ex: /app/page.tsx)
     return res.json();
   } catch (error) {
     console.log("Error loading topics: ", error);
   }
 }
 
-export async function sortSiblingNodes(path: string, newSidebarData: any) {
+export async function patchNewNodes(treeData: any) {
+  const serializedData = await serializeTree(treeData);
+  console.log(serializedData);
   try {
-    for (let i = 0; i < newSidebarData.length; i++) {
-      const { _id } = newSidebarData[i];
+    for (let i = 0; i < serializedData.length; i++) {
+      const { _id, index, parent_id } = serializedData[i];
+      const bodyObject = {
+        _id,
+        index,
+        ...(parent_id !== undefined && { parent_id }), // parent_id가 undefined가 아닐 때만 객체에 포함
+      };
+
       await fetch(LOCAL_API_URL, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ _id, index: i }),
+        body: JSON.stringify(bodyObject),
       });
     }
 
-    revalidatePath(path); // path: 불어오는 페이지 경로 (ex: /app/page.tsx)
+    revalidatePath("/"); // path: 불어오는 페이지 경로 (ex: /app/page.tsx)
   } catch (error) {
     console.log("Error loading topics: ", error);
   }
@@ -107,6 +116,38 @@ function dfsForChildNodes(
       nodeList.splice(i, 1);
 
       dfsForChildNodes(parentNode["children"][0], nodeList, depth+1);
+    }
+  }
+}
+
+export async function serializeTree(treeData : any) {
+  const serializedArray: any = [];
+  for (let i = 0; i < treeData.length; i++) {
+    const serializedNode: any = {};
+    serializedNode["_id"] = treeData[i].name;
+    serializedNode["index"] = i;
+
+    serializedArray.push(serializedNode);
+
+    if (treeData[i].children.length) {
+      dfsToSerializeChildren(serializedArray, treeData[i])
+    }
+  }
+
+  return serializedArray;
+}
+
+function dfsToSerializeChildren(serializedArray: any, hasChildrenNode: any) {
+  for (let i = 0; i < hasChildrenNode.children.length; i++) {
+    const serializedNode: any = {};
+    serializedNode["_id"] = hasChildrenNode.children[i].name;
+    serializedNode["index"] = i;
+    serializedNode["parent_id"] = hasChildrenNode.name;
+
+    serializedArray.push(serializedNode);
+
+    if (hasChildrenNode.children[i].children.length) {
+      dfsToSerializeChildren(serializedArray, hasChildrenNode.children[i]);
     }
   }
 }

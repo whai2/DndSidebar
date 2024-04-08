@@ -3,16 +3,20 @@
 import { useEffect } from "react";
 import { Tree } from "react-arborist";
 
-import { useSimpleTree } from "@/hooks/domain/useHandleTree";
+import { useSimpleTree, useAsynchronousSerialize } from "@/hooks/domain/useHandleTree";
 import { useSWRSidebarTree } from "@/hooks/swr";
 
+const LOCAL_API_URL = 'http://localhost:3000/api/sidebar/';
+
 const ArboristTree = () => {
-  const { data, isValidating, mutate } = useSWRSidebarTree();
-  const [treeData, setData ,controller] = useSimpleTree(data ?? []);
+  const { data, unSerializedData ,isValidating, mutate } = useSWRSidebarTree();
+  const [treeData, setData ,controller] = useSimpleTree(unSerializedData ?? []);
 
   useEffect(() => {
-    setData(data ?? []);
-  }, [data]);
+    setData(unSerializedData ?? []);
+  }, [unSerializedData]);
+
+  useAsynchronousSerialize(treeData);
 
   return (
     <Tree
